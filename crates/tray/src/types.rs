@@ -1,7 +1,8 @@
 //! Tray type definitions and builder
 
-use crate::events::TrayEvent;
+use crate::events::{EventHandler, TrayEvent};
 use gpui::{App, MenuItem as GpuiMenuItem, SharedString};
+use std::cell::RefCell;
 use std::rc::Rc;
 
 /// Tray icon types
@@ -34,7 +35,6 @@ pub struct TrayIconData {
 }
 
 /// System tray configuration
-#[derive(Clone)]
 pub struct Tray {
     /// Icon to display
     pub icon: Option<TrayIcon>,
@@ -47,9 +47,9 @@ pub struct Tray {
     /// Function to build the context menu
     pub menu_builder: Option<Rc<dyn Fn(&mut App) -> Vec<GpuiMenuItem> + 'static>>,
     /// Internal icon data for platform rendering
-    pub icon_data: Option<TrayIconData>,
-    /// Event callback for tray interactions
-    pub event_handler: Option<Rc<dyn Fn(TrayEvent) + 'static>>,
+    pub(crate) icon_data: Option<TrayIconData>,
+    /// Event handler for tray interactions
+    pub event_handler: Option<Rc<RefCell<dyn EventHandler>>>,
 }
 
 impl Tray {
@@ -101,12 +101,50 @@ impl Tray {
     }
 
     /// Set event handler for tray interactions
+    ///
+    /// This uses a closure-based approach suitable for simple scenarios.
+    /// For more complex use cases, consider using Action integration or Entity subscription.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let tray = Tray::new()
+    ///     .on_event(|event| match event {
+    ///         TrayEvent::Click { button, position } => {
+    ///             log::info!("Tray clicked at {:?}", position);
+    ///         }
+    ///         TrayEvent::MenuSelect { id } => {
+    ///             log::info!("Menu item selected: {}", id);
+    ///         }
+    ///         _ => {}
+    ///     });
+    /// ```
     pub fn on_event<F>(mut self, handler: F) -> Self
     where
-        F: Fn(TrayEvent) + 'static,
+        F: FnMut(TrayEvent) + 'static,
     {
-        self.event_handler = Some(Rc::new(handler));
+        self.event_handler = Some(Rc::new(RefCell::new(handler)));
         self
+    }
+
+    /// Dispatch an event to the registered handler
+    pub fn dispatch_event(&self, event: TrayEvent) {
+        if let Some(handler) = &self.event_handler {
+            handler.borrow_mut().handle(event);
+        }
+    }
+}
+
+impl Clone for Tray {
+    fn clone(&self) -> Self {
+        Self {
+            icon: self.icon.clone(),
+            title: self.title.clone(),
+            tooltip: self.tooltip.clone(),
+            visible: self.visible,
+            menu_builder: self.menu_builder.clone(),
+            icon_data: self.icon_data.clone(),
+            event_handler: self.event_handler.clone(),
+        }
     }
 }
 

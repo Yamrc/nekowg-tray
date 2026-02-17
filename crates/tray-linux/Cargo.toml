@@ -8,6 +8,7 @@ license.workspace = true
 [dependencies]
 anyhow.workspace = true
 gpui.workspace = true
+log.workspace = true
 zbus = "5.13"
 
 [dev-dependencies]

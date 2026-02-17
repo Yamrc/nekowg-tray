@@ -12,8 +12,8 @@ default = []
 [dependencies]
 anyhow.workspace = true
 gpui.workspace = true
+log.workspace = true
 
-# 平台特定的依赖 - 自动根据目标平台选择
 [target.'cfg(target_os = "windows")'.dependencies]
 tray-windows = { path = "../tray-windows" }
 

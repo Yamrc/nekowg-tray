@@ -12,3 +12,4 @@ license = "MPL-2.0"
 [workspace.dependencies]
 gpui = "0.2.2"
 anyhow = "1.0.101"
+log = "0.4.29"

@@ -28,8 +28,10 @@ pub use gpui;
 
 mod app_ext;
 mod events;
+mod platform;
 mod types;
 
 pub use app_ext::AppTrayExt;
-pub use events::{MouseButton, TrayEvent};
+pub use events::{EventHandler, MouseButton, TrayEvent};
+pub use platform::{PlatformEventCallback, PlatformTrayConfig};
 pub use types::{Tray, TrayIcon, TrayIconData};

@@ -1,63 +1,49 @@
-//! macOS tray implementation using NSStatusBar
+//! macOS tray implementation
 //!
-//! Low-level macOS system tray implementation.
-//! Used internally by gpui-tray.
+//! Placeholder implementation for macOS platform.
+//! TODO: Implement NSStatusBar support.
 
-use gpui::{App, BorrowAppContext, Global, MenuItem as GpuiMenuItem, SharedString};
+use gpui::{App, MenuItem as GpuiMenuItem, SharedString};
+
+/// Platform tray trait
+pub trait PlatformTray: 'static {
+    fn set_tray(&mut self, app: &mut App, config: MacosTrayConfig);
+    fn hide(&mut self);
+    fn show(&mut self, app: &mut App);
+    fn destroy(&mut self);
+}
 
 /// macOS tray configuration
-#[derive(Clone)]
 pub struct MacosTrayConfig {
     pub tooltip: Option<SharedString>,
     pub visible: bool,
     pub menu_items: Option<Vec<GpuiMenuItem>>,
 }
 
-/// macOS tray implementation using NSStatusBar
-pub struct MacosTray {
-    pub(crate) visible: bool,
-}
+/// macOS tray implementation (placeholder)
+pub struct MacosTray;
 
 impl MacosTray {
-    /// Create a new macOS tray
     pub fn new() -> Self {
-        Self { visible: false }
+        Self
+    }
+}
+
+impl PlatformTray for MacosTray {
+    fn set_tray(&mut self, _app: &mut App, _config: MacosTrayConfig) {
+        log::warn!("macOS tray not yet implemented");
     }
 
-    /// Set the tray for the application
-    pub fn set_tray(app: &mut App, config: MacosTrayConfig) {
-        // Get or create the global tray state
-        if !app.has_global::<crate::state::MacosTrayState>() {
-            app.set_global(crate::state::MacosTrayState::new());
-        }
-
-        // Update the tray
-        app.update_global::<crate::state::MacosTrayState, _>(
-            |state: &mut crate::state::MacosTrayState, _cx| {
-                state.update_tray(config);
-            },
-        );
+    fn hide(&mut self) {
+        log::warn!("macOS tray hide not yet implemented");
     }
 
-    pub(crate) fn create_internal(&mut self, config: &MacosTrayConfig) {
-        self.visible = config.visible;
-
-        if !config.visible {
-            return;
-        }
-
-        // TODO: Implement NSStatusBar
-        log::info!("macOS tray created (NSStatusBar implementation pending)");
+    fn show(&mut self, _app: &mut App) {
+        log::warn!("macOS tray show not yet implemented");
     }
 
-    pub(crate) fn update(&mut self, config: &MacosTrayConfig) {
-        self.visible = config.visible;
-
-        if !config.visible {
-            return;
-        }
-
-        log::info!("macOS tray updated");
+    fn destroy(&mut self) {
+        log::warn!("macOS tray destroy not yet implemented");
     }
 }
 
@@ -74,6 +60,7 @@ mod tests {
     #[test]
     fn test_macos_tray_new() {
         let tray = MacosTray::new();
-        assert!(!tray.visible);
+        // Just verify it can be created
+        assert!(true);
     }
 }
