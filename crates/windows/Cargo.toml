@@ -7,19 +7,8 @@ description.workspace = true
 license.workspace = true
 
 [dependencies]
-anyhow.workspace = true
 gpui.workspace = true
-gpui-tray-core = { path = "../core", version = "0.0.0" }
-log.workspace = true
+gpui-tray-core.workspace = true
 image = "0.25"
-
-[dependencies.windows]
-version = "0.62"
-features = [
-    "Win32_Foundation",
-    "Win32_UI_Shell",
-    "Win32_UI_WindowsAndMessaging",
-    "Win32_Graphics_Gdi",
-    "Win32_System_Threading",
-    "Win32_System_LibraryLoader",
-]
+log.workspace = true
+windows.workspace = true

@@ -2244,7 +2244,6 @@ dependencies = [
 name = "gpui-tray-linux"
 version = "0.0.0"
 dependencies = [
- "anyhow",
  "gpui",
  "gpui-tray-core",
  "log",
@@ -2255,19 +2254,16 @@ dependencies = [
 name = "gpui-tray-macos"
 version = "0.0.0"
 dependencies = [
- "anyhow",
- "cocoa 0.26.0",
  "gpui",
  "gpui-tray-core",
  "log",
- "objc",
+ "objc2",
 ]
 
 [[package]]
 name = "gpui-tray-windows"
 version = "0.0.0"
 dependencies = [
- "anyhow",
  "gpui",
  "gpui-tray-core",
  "image",

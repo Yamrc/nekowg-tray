@@ -8,17 +8,17 @@ license.workspace = true
 
 [dependencies]
 gpui.workspace = true
-gpui-tray-core = { path = "../core", version = "0.0.0" }
+gpui-tray-core.workspace = true
 log.workspace = true
 
 [target.'cfg(target_os = "windows")'.dependencies]
-gpui-tray-windows = { path = "../windows", version = "0.0.0" }
+gpui-tray-windows = { path = "../windows" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-gpui-tray-macos = { path = "../macos", version = "0.0.0" }
+gpui-tray-macos = { path = "../macos" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-gpui-tray-linux = { path = "../linux", version = "0.0.0" }
+gpui-tray-linux = { path = "../linux" }
 
 [[example]]
 name = "tray"
