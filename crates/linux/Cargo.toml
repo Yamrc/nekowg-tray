@@ -8,5 +8,6 @@ license.workspace = true
 [dependencies]
 gpui.workspace = true
 gpui-tray-core.workspace = true
+image.workspace = true
 log.workspace = true
 zbus.workspace = true

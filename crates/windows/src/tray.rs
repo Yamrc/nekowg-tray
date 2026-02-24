@@ -6,14 +6,28 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 use windows::Win32::Foundation::{FALSE, HWND, TRUE};
 use windows::Win32::UI::Shell::*;
+use windows::Win32::UI::WindowsAndMessaging::RegisterWindowMessageW;
 
 use crate::util::encode_wide;
 use crate::window::{
     WM_USER_TRAYICON, build_menu, create_tray_window, destroy_window, destroy_window_menu,
-    set_menu_actions, set_window_menu,
+    set_menu_actions, set_window_menu, unregister_tray_class,
 };
 
 static TRAY_COUNTER: AtomicU32 = AtomicU32::new(0);
+static WM_TASKBAR_RESTART: AtomicU32 = AtomicU32::new(0);
+
+/// Returns the TaskbarCreated message ID, registering it if necessary.
+pub fn taskbar_restart_message() -> u32 {
+    let msg = WM_TASKBAR_RESTART.load(Ordering::Relaxed);
+    if msg == 0 {
+        let new_msg = unsafe { RegisterWindowMessageW(windows::core::w!("TaskbarCreated")) };
+        WM_TASKBAR_RESTART.store(new_msg, Ordering::Relaxed);
+        new_msg
+    } else {
+        msg
+    }
+}
 
 pub struct WindowsTray {
     hwnd: HWND,
@@ -24,9 +38,11 @@ pub struct WindowsTray {
 }
 
 impl WindowsTray {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         let tray_id = TRAY_COUNTER.fetch_add(1, Ordering::Relaxed);
         debug!("Creating WindowsTray with ID: {}", tray_id);
+
+        taskbar_restart_message();
 
         Self {
             hwnd: HWND(std::ptr::null_mut()),
@@ -194,6 +210,7 @@ impl Drop for WindowsTray {
             destroy_window(self.hwnd);
             self.hwnd = HWND(std::ptr::null_mut());
         }
+        unregister_tray_class();
     }
 }
 

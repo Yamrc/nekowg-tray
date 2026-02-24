@@ -9,6 +9,6 @@ license.workspace = true
 [dependencies]
 gpui.workspace = true
 gpui-tray-core.workspace = true
-image = "0.25"
+image.workspace = true
 log.workspace = true
 windows.workspace = true

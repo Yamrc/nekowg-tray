@@ -2246,6 +2246,7 @@ version = "0.0.0"
 dependencies = [
  "gpui",
  "gpui-tray-core",
+ "image",
  "log",
  "zbus",
 ]
@@ -2256,6 +2257,7 @@ version = "0.0.0"
 dependencies = [
  "gpui",
  "gpui-tray-core",
+ "image",
  "log",
  "objc2",
 ]

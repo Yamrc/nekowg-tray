@@ -180,7 +180,15 @@ unsafe extern "system" fn tray_procedure(
                 dispatch_menu_action(command_id);
                 LRESULT(0)
             }
-            _ => DefWindowProcW(hwnd, msg, wparam, lparam),
+            _ => {
+                let taskbar_restart = crate::tray::taskbar_restart_message();
+                if msg == taskbar_restart {
+                    debug!("Received TaskbarCreated message, re-registering tray icon");
+                    SendMessageW(hwnd, WM_USER_TRAYICON, Some(WPARAM(0)), Some(LPARAM(0)));
+                    return LRESULT(0);
+                }
+                DefWindowProcW(hwnd, msg, wparam, lparam)
+            }
         }
     }
 }
@@ -292,7 +300,9 @@ unsafe fn build_menu_items(
         for item in items {
             match item {
                 GpuiMenuItem::Separator => {
-                    let _ = AppendMenuW(hmenu, MF_SEPARATOR, 0, PCWSTR::null());
+                    if AppendMenuW(hmenu, MF_SEPARATOR, 0, PCWSTR::null()).is_err() {
+                        error!("Failed to append separator");
+                    }
                 }
                 GpuiMenuItem::Action { name, action, .. } => {
                     current_id = current_id.checked_add(1).ok_or(())?;
