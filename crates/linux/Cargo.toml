@@ -1,13 +1,15 @@
 [package]
 name = "gpui-tray-linux"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 
-[target.'cfg(target_os = "linux")'.dependencies]
+[dependencies]
 gpui.workspace = true
 gpui-tray-core.workspace = true
 image.workspace = true
 log.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
 zbus.workspace = true

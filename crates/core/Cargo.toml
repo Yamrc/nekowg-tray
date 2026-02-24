@@ -1,6 +1,6 @@
 [package]
 name = "gpui-tray-core"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 authors.workspace = true
 description = "Core types for gpui-tray"

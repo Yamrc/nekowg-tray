@@ -2221,7 +2221,7 @@ dependencies = [
 
 [[package]]
 name = "gpui-tray"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "env_logger",
  "gpui",
@@ -2234,7 +2234,7 @@ dependencies = [
 
 [[package]]
 name = "gpui-tray-core"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "gpui",
  "thiserror 1.0.69",
@@ -2242,7 +2242,7 @@ dependencies = [
 
 [[package]]
 name = "gpui-tray-linux"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "gpui",
  "gpui-tray-core",
@@ -2253,7 +2253,7 @@ dependencies = [
 
 [[package]]
 name = "gpui-tray-macos"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "gpui",
  "gpui-tray-core",
@@ -2264,7 +2264,7 @@ dependencies = [
 
 [[package]]
 name = "gpui-tray-windows"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "gpui",
  "gpui-tray-core",

@@ -1,29 +1,17 @@
-// use gpui::App;
-// use gpui_tray_core::{PlatformTray, Result, Tray};
-// use log::debug;
+#![cfg(target_os = "linux")]
 
-// mod tray;
+mod dbus;
+mod icon;
+mod menu;
+mod sni;
+mod tray;
 
-// pub use tray::LinuxTray;
+use gpui_tray_core::platform_trait::PlatformTray;
+use gpui_tray_core::Result;
 
-// pub fn create() -> Result<Box<dyn PlatformTray>> {
-//     debug!("Creating Linux tray implementation");
-//     Ok(Box::new(LinuxTray::new()))
-// }
+pub use dbus::{TrayEventDispatcher, set_dispatcher};
+pub use tray::LinuxTray;
 
-// impl PlatformTray for LinuxTray {
-//     fn set_tray(&mut self, _cx: &mut App, _tray: &Tray) -> Result<()> {
-//         debug!("LinuxTray::set_tray called");
-//         Ok(())
-//     }
-
-//     fn update_tray(&mut self, _cx: &mut App, _tray: &Tray) -> Result<()> {
-//         debug!("LinuxTray::update_tray called");
-//         Ok(())
-//     }
-
-//     fn remove_tray(&mut self, _cx: &mut App) -> Result<()> {
-//         debug!("LinuxTray::remove_tray called");
-//         Ok(())
-//     }
-// }
+pub fn create() -> Result<Box<dyn PlatformTray>> {
+    tray::create()
+}
