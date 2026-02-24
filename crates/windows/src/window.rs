@@ -10,15 +10,16 @@ use windows::core::{PCWSTR, w};
 
 use crate::util::encode_wide;
 
-pub const WM_USER_TRAYICON: u32 = 6002;
-pub const WM_USER_SET_MENU: u32 = WM_USER + 1;
-pub const WM_USER_DESTROY_MENU: u32 = WM_USER + 2;
+pub(crate) const WM_USER_TRAYICON: u32 = 6002;
+pub(crate) const WM_USER_SET_MENU: u32 = WM_USER + 1;
+pub(crate) const WM_USER_DESTROY_MENU: u32 = WM_USER + 2;
 
 const PLATFORM_TRAY_CLASS_NAME: PCWSTR = w!("GPUI::Tray");
 
 static CLASS_REGISTERED: AtomicBool = AtomicBool::new(false);
 static mut CLASS_ATOM: u16 = 0;
 
+/// Trait for dispatching tray events to the application.
 pub trait TrayEventDispatcher: Send + Sync + 'static {
     fn dispatch_click(&self, button: MouseButton, position: gpui::Point<f32>);
     fn dispatch_double_click(&self);
@@ -26,22 +27,23 @@ pub trait TrayEventDispatcher: Send + Sync + 'static {
 }
 
 /// Type alias for menu actions map.
-pub type MenuActionsMap = Rc<HashMap<u32, Box<dyn gpui::Action>>>;
+pub(crate) type MenuActionsMap = Rc<HashMap<u32, Box<dyn gpui::Action>>>;
 
 thread_local! {
     static DISPATCHER: Cell<Option<&'static dyn TrayEventDispatcher>> = Cell::new(None);
     static MENU_ACTIONS: RefCell<Option<MenuActionsMap>> = RefCell::new(None);
 }
 
+#[doc(hidden)]
 pub fn set_dispatcher(dispatcher: Option<&'static dyn TrayEventDispatcher>) {
     DISPATCHER.set(dispatcher);
 }
 
-pub fn set_menu_actions(actions: Option<MenuActionsMap>) {
+pub(crate) fn set_menu_actions(actions: Option<MenuActionsMap>) {
     MENU_ACTIONS.with(|cell| *cell.borrow_mut() = actions);
 }
 
-pub fn get_menu_action(id: u32) -> Option<Box<dyn gpui::Action>> {
+fn get_menu_action(id: u32) -> Option<Box<dyn gpui::Action>> {
     MENU_ACTIONS.with(|cell| cell.borrow().as_ref()?.get(&id).map(|a| a.boxed_clone()))
 }
 
@@ -217,7 +219,7 @@ fn register_platform_tray_class() -> Result<(), &'static str> {
     Ok(())
 }
 
-pub fn unregister_tray_class() {
+pub(crate) fn unregister_tray_class() {
     if unsafe { CLASS_ATOM } != 0 {
         let result = unsafe { UnregisterClassW(PCWSTR(CLASS_ATOM as usize as *const u16), None) };
         if result.is_ok() {
@@ -230,7 +232,7 @@ pub fn unregister_tray_class() {
     }
 }
 
-pub fn create_tray_window() -> Result<HWND, &'static str> {
+pub(crate) fn create_tray_window() -> Result<HWND, &'static str> {
     register_platform_tray_class()?;
 
     let hwnd_result = unsafe {
@@ -275,9 +277,9 @@ impl Drop for MenuHandle {
 }
 
 /// Type alias for menu build result.
-pub type MenuBuildResult = Option<(HMENU, Vec<(u32, Box<dyn gpui::Action>)>)>;
+pub(crate) type MenuBuildResult = Option<(HMENU, Vec<(u32, Box<dyn gpui::Action>)>)>;
 
-pub unsafe fn build_menu(items: &[GpuiMenuItem]) -> MenuBuildResult {
+pub(crate) unsafe fn build_menu(items: &[GpuiMenuItem]) -> MenuBuildResult {
     let hmenu = unsafe { CreatePopupMenu().ok() }?;
     let mut actions = Vec::new();
     (unsafe { build_menu_items(hmenu, items, 0, &mut actions).ok() })?;
@@ -369,7 +371,7 @@ fn show_tray_menu(hwnd: HWND, hmenu: HMENU) {
     }
 }
 
-pub fn set_window_menu(hwnd: HWND, hmenu: Option<HMENU>) {
+pub(crate) fn set_window_menu(hwnd: HWND, hmenu: Option<HMENU>) {
     if hwnd.is_invalid() {
         error!("Attempted to set menu on invalid window");
         return;
@@ -387,7 +389,7 @@ pub fn set_window_menu(hwnd: HWND, hmenu: Option<HMENU>) {
     };
 }
 
-pub fn destroy_window_menu(hwnd: HWND) {
+pub(crate) fn destroy_window_menu(hwnd: HWND) {
     if hwnd.is_invalid() {
         return;
     }
@@ -396,7 +398,7 @@ pub fn destroy_window_menu(hwnd: HWND) {
     unsafe { SendMessageW(hwnd, WM_USER_DESTROY_MENU, Some(WPARAM(0)), Some(LPARAM(0))) };
 }
 
-pub fn destroy_window(hwnd: HWND) -> bool {
+pub(crate) fn destroy_window(hwnd: HWND) -> bool {
     if hwnd.is_invalid() {
         debug!("Window already invalid, skipping destroy");
         return true;

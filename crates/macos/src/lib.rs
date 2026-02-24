@@ -1,3 +1,5 @@
+// #![cfg(target_os = "macos")]
+
 // use gpui::App;
 // use gpui_tray_core::{PlatformTray, Result, Tray};
 // use log::debug;

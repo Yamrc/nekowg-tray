@@ -1,5 +1,6 @@
 use gpui::App;
-use gpui_tray_core::{Error, PlatformTray, Result, Tray};
+use gpui_tray_core::platform_trait::PlatformTray;
+use gpui_tray_core::{Error, Result, Tray};
 use log::{debug, error, info};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -19,6 +20,10 @@ static TRAY_COUNTER: AtomicU32 = AtomicU32::new(0);
 static WM_TASKBAR_RESTART: AtomicU32 = AtomicU32::new(0);
 
 /// Returns the TaskbarCreated message ID, registering it if necessary.
+///
+/// This message is broadcast by Windows when the taskbar is recreated
+/// (e.g., after explorer.exe restart). Applications should re-register
+/// their tray icons when receiving this message.
 pub fn taskbar_restart_message() -> u32 {
     let msg = WM_TASKBAR_RESTART.load(Ordering::Relaxed);
     if msg == 0 {
@@ -30,6 +35,23 @@ pub fn taskbar_restart_message() -> u32 {
     }
 }
 
+/// Windows system tray implementation.
+///
+/// Manages a tray icon with support for:
+/// - Custom icons (decoded from various image formats)
+/// - Tooltip text
+/// - Context menus with action dispatching
+/// - Click event handling
+///
+/// # Example
+///
+/// ```rust
+/// let tray = WindowsTray::new();
+/// tray.set_tray(cx, &Tray::new()
+///     .tooltip("My App")
+///     .icon(image)
+///     .menu(|cx| vec![MenuItem::action("Quit", Quit)]))?;
+/// ```
 pub struct WindowsTray {
     hwnd: HWND,
     tray_id: u32,

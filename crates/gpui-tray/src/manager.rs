@@ -1,5 +1,6 @@
 use gpui::{Action, App, Global, MouseButton, Point};
 use gpui_tray_core::Result;
+use gpui_tray_core::platform_trait::PlatformTray;
 use gpui_tray_core::{self as core, *};
 use log::debug;
 use std::cell::Cell;
@@ -13,6 +14,7 @@ use gpui_tray_macos as platform_impl;
 #[cfg(target_os = "linux")]
 use gpui_tray_linux as platform_impl;
 
+/// Internal tray manager stored as a GPUI global.
 struct TrayManager {
     current_tray: Option<Tray>,
     platform_impl: Box<dyn PlatformTray>,
@@ -72,20 +74,8 @@ thread_local! {
     static DISPATCHER_APP: Cell<Option<*mut App>> = const { Cell::new(None) };
 }
 
-#[cfg(target_os = "windows")]
-fn set_dispatcher_app(app: &mut App) {
-    DISPATCHER_APP.set(Some(app as *mut App));
-    let dispatcher: &'static GlobalDispatcher = Box::leak(Box::new(GlobalDispatcher));
-    platform_impl::set_dispatcher(Some(dispatcher));
-}
-
-#[cfg(target_os = "windows")]
-fn clear_dispatcher_app() {
-    DISPATCHER_APP.set(None);
-    platform_impl::set_dispatcher(None);
-}
-
 impl TrayManager {
+    /// Creates a new TrayManager with platform-specific implementation.
     fn new() -> Result<Self> {
         debug!("Creating new TrayManager");
         Ok(Self {
@@ -94,6 +84,7 @@ impl TrayManager {
         })
     }
 
+    /// Sets the current tray configuration.
     fn set_tray(&mut self, cx: &mut App, tray: Tray) -> Result<()> {
         debug!(
             "Setting tray: tooltip={:?}, visible={}",
@@ -104,10 +95,12 @@ impl TrayManager {
         Ok(())
     }
 
+    /// Returns the current tray configuration if any.
     fn tray(&self) -> Option<&Tray> {
         self.current_tray.as_ref()
     }
 
+    /// Updates the current tray using the provided closure.
     fn update_tray(&mut self, cx: &mut App, f: impl FnOnce(&mut Tray)) -> Result<Tray> {
         let Some(tray) = self.current_tray.as_mut() else {
             debug!("Tray not found for update");
@@ -119,6 +112,7 @@ impl TrayManager {
         Ok(self.current_tray.clone().unwrap())
     }
 
+    /// Removes the tray icon from the system tray.
     fn remove_tray(&mut self, cx: &mut App) -> Result<()> {
         debug!("Removing tray");
         self.platform_impl.remove_tray(cx)?;
@@ -127,10 +121,47 @@ impl TrayManager {
     }
 }
 
+/// Extension trait for GPUI's `App` to manage system tray icons.
+///
+/// This trait provides a high-level API for tray management that works
+/// consistently across all supported platforms.
+///
+/// # Example
+///
+/// ```rust
+/// use gpui_tray::{Tray, TrayAppContext};
+///
+/// // In your app initialization
+/// cx.set_tray(
+///     Tray::new()
+///         .tooltip("My App")
+///         .icon(icon_image)
+///         .menu(|cx| vec![
+///             MenuItem::action("Settings", OpenSettings),
+///             MenuItem::separator(),
+///             MenuItem::action("Quit", Quit),
+///         ])
+/// );
+///
+/// // Later, update the tooltip
+/// cx.update_tray(|tray| {
+///     tray.tooltip = Some("Updated Status".into());
+/// });
+///
+/// // Remove when done
+/// cx.remove_tray();
+/// ```
 pub trait TrayAppContext {
+    /// Sets or replaces the current tray icon.
     fn set_tray(&mut self, tray: Tray) -> Result<()>;
+
+    /// Returns the current tray configuration if set.
     fn tray(&self) -> Option<&Tray>;
+
+    /// Updates the current tray configuration.
     fn update_tray(&mut self, f: impl FnOnce(&mut Tray)) -> Result<Tray>;
+
+    /// Removes the tray icon from the system tray.
     fn remove_tray(&mut self) -> Result<()>;
 }
 
@@ -182,4 +213,19 @@ impl TrayAppContext for App {
         self.set_global(manager);
         Ok(())
     }
+}
+
+/// Sets up the event dispatcher for Windows platform.
+#[cfg(target_os = "windows")]
+fn set_dispatcher_app(app: &mut App) {
+    DISPATCHER_APP.set(Some(app as *mut App));
+    let dispatcher: &'static GlobalDispatcher = Box::leak(Box::new(GlobalDispatcher));
+    platform_impl::set_dispatcher(Some(dispatcher));
+}
+
+/// Clears the event dispatcher for Windows platform.
+#[cfg(target_os = "windows")]
+fn clear_dispatcher_app() {
+    DISPATCHER_APP.set(None);
+    platform_impl::set_dispatcher(None);
 }
