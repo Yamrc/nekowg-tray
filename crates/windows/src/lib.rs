@@ -1,3 +1,4 @@
+mod icon;
 mod tray;
 mod util;
 mod window;

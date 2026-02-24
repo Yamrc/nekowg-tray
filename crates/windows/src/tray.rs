@@ -8,6 +8,7 @@ use windows::Win32::Foundation::{FALSE, HWND, TRUE};
 use windows::Win32::UI::Shell::*;
 use windows::Win32::UI::WindowsAndMessaging::RegisterWindowMessageW;
 
+use crate::icon::Icon;
 use crate::util::encode_wide;
 use crate::window::{
     WM_USER_TRAYICON, build_menu, create_tray_window, destroy_window, destroy_window_menu,
@@ -35,6 +36,7 @@ pub struct WindowsTray {
     registered: bool,
     visible: bool,
     current_tray: Option<Tray>,
+    icon: Option<Icon>,
 }
 
 impl WindowsTray {
@@ -50,6 +52,7 @@ impl WindowsTray {
             registered: false,
             visible: false,
             current_tray: None,
+            icon: None,
         }
     }
 
@@ -89,12 +92,27 @@ impl WindowsTray {
     fn add_or_update_tray_icon(&mut self, tray: &Tray, is_update: bool) -> Result<()> {
         let mut flags = NIF_MESSAGE;
         let mut sz_tip: [u16; 128] = [0; 128];
+        let mut hicon = windows::Win32::UI::WindowsAndMessaging::HICON(std::ptr::null_mut());
 
         if let Some(tooltip) = &tray.tooltip {
             flags |= NIF_TIP;
             let wide_tip = encode_wide(tooltip.as_ref());
             for (i, &ch) in wide_tip.iter().take(127).enumerate() {
                 sz_tip[i] = ch;
+            }
+        }
+
+        if let Some(image) = &tray.icon {
+            match Icon::from_image(image) {
+                Ok(icon) => {
+                    hicon = icon.as_hicon();
+                    flags |= NIF_ICON;
+                    self.icon = Some(icon);
+                    debug!("Icon created and set successfully");
+                }
+                Err(e) => {
+                    error!("Failed to create icon: {}", e);
+                }
             }
         }
 
@@ -105,6 +123,7 @@ impl WindowsTray {
                 hWnd: self.hwnd,
                 uID: self.tray_id,
                 uCallbackMessage: WM_USER_TRAYICON,
+                hIcon: hicon,
                 szTip: sz_tip,
                 ..std::mem::zeroed()
             };
@@ -140,6 +159,7 @@ impl WindowsTray {
                 }
             }
         }
+        self.icon = None;
     }
 }
 

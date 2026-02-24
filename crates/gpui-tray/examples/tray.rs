@@ -1,6 +1,5 @@
 use gpui::{
-    App, Application, Context, Div, Global, MenuItem, Stateful, Window, WindowOptions, actions,
-    div, prelude::*,
+    App, Application, Context, Div, Global, Image, ImageFormat, MenuItem, Stateful, Window, WindowOptions, actions, div, prelude::*
 };
 use gpui_tray::{Tray, TrayAppContext};
 use gpui_tray_core::{ClickEvent, DoubleClickEvent};
@@ -77,10 +76,15 @@ struct AppState {
 impl AppState {
     fn new() -> Self {
         debug!("Creating AppState with default tray configuration");
+
+        let icon_bytes = include_bytes!("image/app-icon.png");
+        let icon = Image::from_bytes(ImageFormat::Png, icon_bytes.to_vec());
+
         Self {
             tray: Tray::new()
                 .tooltip("🦀！？弱弱？！🦀")
                 .title("Tray App")
+                .icon(icon)
                 .menu(Self::build_menus),
         }
     }
