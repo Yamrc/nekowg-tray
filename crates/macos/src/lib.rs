@@ -1,31 +1,14 @@
-// #![cfg(target_os = "macos")]
+#![cfg(target_os = "macos")]
 
-// use gpui::App;
-// use gpui_tray_core::{PlatformTray, Result, Tray};
-// use log::debug;
+use gpui_tray_core::Result;
+use gpui_tray_core::platform_trait::PlatformTray;
+use log::warn;
 
-// mod tray;
+use crate::stub::MacosTrayStub;
 
-// pub use tray::MacosTray;
+mod stub;
 
-// pub fn create() -> Result<Box<dyn PlatformTray>> {
-//     debug!("Creating macOS tray implementation");
-//     Ok(Box::new(MacosTray::new()))
-// }
-
-// impl PlatformTray for MacosTray {
-//     fn set_tray(&mut self, _cx: &mut App, _tray: &Tray) -> Result<()> {
-//         debug!("MacosTray::set_tray called");
-//         Ok(())
-//     }
-
-//     fn update_tray(&mut self, _cx: &mut App, _tray: &Tray) -> Result<()> {
-//         debug!("MacosTray::update_tray called");
-//         Ok(())
-//     }
-
-//     fn remove_tray(&mut self, _cx: &mut App) -> Result<()> {
-//         debug!("MacosTray::remove_tray called");
-//         Ok(())
-//     }
-// }
+pub fn create() -> Result<Box<dyn PlatformTray>> {
+    warn!("Creating macOS tray stub implementation.");
+    Ok(Box::new(MacosTrayStub::new()))
+}

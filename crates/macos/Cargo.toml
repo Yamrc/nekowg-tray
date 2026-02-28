@@ -11,3 +11,5 @@ gpui-tray-core.workspace = true
 image.workspace = true
 log.workspace = true
 objc2.workspace = true
+objc2-app-kit.workspace = true
+objc2-foundation.workspace = true
