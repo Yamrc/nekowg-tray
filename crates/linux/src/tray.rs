@@ -35,7 +35,10 @@ fn dispatch_click_linux(button: MouseButton, position: Point<f32>) {
 
     let app_ptr = DISPATCHER_APP.load(Ordering::SeqCst);
     if !app_ptr.is_null() {
-        debug!("Dispatching click: button={:?}, position={:?}", button, position);
+        debug!(
+            "Dispatching click: button={:?}, position={:?}",
+            button, position
+        );
         unsafe {
             let app = &mut *app_ptr;
             let event = ClickEvent { button, position };
@@ -95,8 +98,16 @@ impl LinuxTray {
             }
         }
 
-        self.item_state.lock().unwrap().tooltip = tray.tooltip.clone().map(|s| s.to_string()).unwrap_or_default();
-        self.item_state.lock().unwrap().title = tray.tooltip.clone().map(|s| s.to_string()).unwrap_or_else(|| "GPUI Tray".to_string());
+        self.item_state.lock().unwrap().tooltip = tray
+            .tooltip
+            .clone()
+            .map(|s| s.to_string())
+            .unwrap_or_default();
+        self.item_state.lock().unwrap().title = tray
+            .tooltip
+            .clone()
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| "GPUI Tray".to_string());
 
         self.build_menu(tray, cx);
 
@@ -116,27 +127,26 @@ impl LinuxTray {
                     std::thread::spawn(move || {
                         loop {
                             match event_receiver.recv() {
-                                Ok(event) => {
-                                    match event {
-                                        TrayEvent::Activate { x, y } => {
-                                            let position = Point::new(x as f32, y as f32);
-                                            dispatch_click_linux(MouseButton::Left, position);
-                                        }
-                                        TrayEvent::SecondaryActivate { x, y } => {
-                                            let position = Point::new(x as f32, y as f32);
-                                            dispatch_click_linux(MouseButton::Middle, position);
-                                        }
-                                        TrayEvent::ContextMenu { x, y } => {
-                                            let position = Point::new(x as f32, y as f32);
-                                            dispatch_click_linux(MouseButton::Right, position);
-                                        }
-                                        TrayEvent::MenuClicked { id } => {
-                                            if let Some(action) = menu_actions.lock().unwrap().get(&id) {
-                                                dispatch_menu_action_linux(action.boxed_clone());
-                                            }
+                                Ok(event) => match event {
+                                    TrayEvent::Activate { x, y } => {
+                                        let position = Point::new(x as f32, y as f32);
+                                        dispatch_click_linux(MouseButton::Left, position);
+                                    }
+                                    TrayEvent::SecondaryActivate { x, y } => {
+                                        let position = Point::new(x as f32, y as f32);
+                                        dispatch_click_linux(MouseButton::Middle, position);
+                                    }
+                                    TrayEvent::ContextMenu { x, y } => {
+                                        let position = Point::new(x as f32, y as f32);
+                                        dispatch_click_linux(MouseButton::Right, position);
+                                    }
+                                    TrayEvent::MenuClicked { id } => {
+                                        if let Some(action) = menu_actions.lock().unwrap().get(&id)
+                                        {
+                                            dispatch_menu_action_linux(action.boxed_clone());
                                         }
                                     }
-                                }
+                                },
                                 Err(_) => {
                                     debug!("Event receiver closed, stopping background thread");
                                     break;
@@ -166,21 +176,33 @@ impl LinuxTray {
             }
         }
 
-        debug!("Menu built with {} actions", self.menu_actions.lock().unwrap().len());
+        debug!(
+            "Menu built with {} actions",
+            self.menu_actions.lock().unwrap().len()
+        );
     }
 
     fn add_menu_item(&mut self, item: &gpui::MenuItem, parent_id: i32) -> i32 {
         match item {
-            gpui::MenuItem::Separator => {
-                self.menu_state.lock().unwrap().add_separator(parent_id)
-            }
+            gpui::MenuItem::Separator => self.menu_state.lock().unwrap().add_separator(parent_id),
             gpui::MenuItem::Action { name, action, .. } => {
-                let id = self.menu_state.lock().unwrap().add_item(name.to_string(), parent_id);
-                self.menu_actions.lock().unwrap().insert(id, action.boxed_clone());
+                let id = self
+                    .menu_state
+                    .lock()
+                    .unwrap()
+                    .add_item(name.to_string(), parent_id);
+                self.menu_actions
+                    .lock()
+                    .unwrap()
+                    .insert(id, action.boxed_clone());
                 id
             }
             gpui::MenuItem::Submenu(submenu) => {
-                let id = self.menu_state.lock().unwrap().add_item(submenu.name.to_string(), parent_id);
+                let id = self
+                    .menu_state
+                    .lock()
+                    .unwrap()
+                    .add_item(submenu.name.to_string(), parent_id);
                 for child in &submenu.items {
                     self.add_menu_item(child, id);
                 }
@@ -224,8 +246,7 @@ impl PlatformTray for LinuxTray {
 }
 
 impl Drop for LinuxTray {
-    fn drop(&mut self) {
-    }
+    fn drop(&mut self) {}
 }
 
 pub fn create() -> Result<Box<dyn PlatformTray>> {

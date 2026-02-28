@@ -179,7 +179,6 @@ impl WindowsTray {
 
 impl PlatformTray for WindowsTray {
     fn set_tray(&mut self, cx: &mut App, tray: &Tray) -> Result<()> {
-
         self.ensure_window()?;
 
         if !tray.visible {

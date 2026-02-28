@@ -154,19 +154,13 @@ unsafe extern "system" fn tray_procedure(
                     dispatch_double_click();
                 }
                 WM_MBUTTONUP => {
-                    debug!(
-                        "Received WM_MBUTTONUP with position=({}, {})",
-                        pos.x, pos.y
-                    );
+                    debug!("Received WM_MBUTTONUP with position=({}, {})", pos.x, pos.y);
                     if has_pos {
                         dispatch_click(MouseButton::Middle, position);
                     }
                 }
                 WM_RBUTTONUP => {
-                    debug!(
-                        "Received WM_RBUTTONUP with position=({}, {})",
-                        pos.x, pos.y
-                    );
+                    debug!("Received WM_RBUTTONUP with position=({}, {})", pos.x, pos.y);
                     if has_pos {
                         dispatch_click(MouseButton::Right, position);
                     }

@@ -18,7 +18,7 @@ impl MacosTrayStub {
 
 impl PlatformTray for MacosTrayStub {
     fn set_tray(&mut self, _cx: &mut App, _tray: &Tray) -> Result<()> {
-            warn!("Tray::set_tray called but macOS tray is not implemented");
+        warn!("Tray::set_tray called but macOS tray is not implemented");
         Ok(())
     }
 
