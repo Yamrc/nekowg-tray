@@ -19,7 +19,7 @@ fn main() {
             include_bytes!("image/app-icon.png").to_vec(),
         );
 
-        cx.set_tray(Tray::new().tooltip("Right-click me!").icon(icon).menu(|_| {
+        cx.set_tray(Tray::new().tooltip("Right-click me!").icon(icon).menu(|| {
             vec![
                 MenuItem::action("Open", Open),
                 MenuItem::action("Settings", Settings),

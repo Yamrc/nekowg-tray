@@ -1,9 +1,9 @@
 pub use error::*;
-pub use events::*;
+pub use event::*;
 pub use tray::*;
 
 pub mod error;
-mod events;
+mod event;
 #[doc(hidden)]
 pub mod platform_trait;
 mod tray;

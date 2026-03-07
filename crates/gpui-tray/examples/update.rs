@@ -35,7 +35,7 @@ fn main() {
         let tray = Tray::new()
             .tooltip("Click to update")
             .icon(png_icon)
-            .menu(|_| {
+            .menu(|| {
                 vec![
                     MenuItem::action("Update Tooltip", UpdateTooltip),
                     MenuItem::action("Toggle Visibility", ToggleVisible),

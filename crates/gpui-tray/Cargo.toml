@@ -20,10 +20,6 @@ gpui-tray-macos = { path = "../macos" }
 [target.'cfg(target_os = "linux")'.dependencies]
 gpui-tray-linux = { path = "../linux" }
 
-[[example]]
-name = "tray"
-path = "examples/tray.rs"
-
 # For example
 [dev-dependencies]
 env_logger = "0.11"

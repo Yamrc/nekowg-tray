@@ -3,7 +3,7 @@ use std::fmt;
 use std::sync::Arc;
 
 /// Builder function type for constructing context menus.
-pub type MenuBuilder = Arc<dyn Fn(&mut App) -> Vec<MenuItem> + Send + Sync>;
+pub type MenuBuilder = Arc<dyn Fn() -> Vec<MenuItem> + Send + Sync>;
 
 /// Configuration for a system tray icon.
 ///
@@ -13,7 +13,7 @@ pub type MenuBuilder = Arc<dyn Fn(&mut App) -> Vec<MenuItem> + Send + Sync>;
 /// let tray = Tray::new()
 ///     .tooltip("My Application")
 ///     .icon(image)
-///     .menu(|cx| vec![MenuItem::action("Quit", Quit)]);
+///     .menu(|| vec![MenuItem::action("Quit", Quit)]);
 /// ```
 pub struct Tray {
     /// Tooltip text displayed when hovering over the tray icon.
@@ -67,7 +67,7 @@ impl Tray {
     /// Sets the context menu builder.
     pub fn menu<F>(mut self, builder: F) -> Self
     where
-        F: Fn(&mut App) -> Vec<MenuItem> + Send + Sync + 'static,
+        F: Fn() -> Vec<MenuItem> + Send + Sync + 'static,
     {
         self.menu_builder = Some(Arc::new(builder));
         self

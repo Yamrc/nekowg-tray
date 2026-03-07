@@ -11,3 +11,9 @@ pub struct ClickEvent {
 #[derive(Clone, PartialEq, Debug, Action)]
 #[action(namespace = gpui_tray, no_json)]
 pub struct DoubleClickEvent;
+
+/// Internal runtime event emitted by platform backends.
+#[derive(Debug)]
+pub enum RuntimeEvent {
+    Action(Box<dyn Action>),
+}

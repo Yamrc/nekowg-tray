@@ -35,7 +35,7 @@ fn main() {
                 .tooltip("My Awesome App")
                 .title("Tray App")
                 .icon(icon)
-                .menu(|cx| vec![
+                .menu(|| vec![
                     MenuItem::action("Open", OpenAction),
                     MenuItem::separator(),
                     MenuItem::action("Quit", QuitAction),
@@ -55,7 +55,7 @@ let tray = Tray::new()
     .title("Tray Title")             // Platform-specific title
     .icon(image)                      // GPUI Image for the icon
     .visible(true)                   // Show/hide the tray icon
-    .menu(|cx| vec![...]);           // Context menu builder
+    .menu(|| vec![...]);             // Context menu builder
 ```
 
 Control the tray through the `TrayAppContext` extension trait on `App`:
