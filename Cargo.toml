@@ -16,8 +16,7 @@ description = "Cross-platform tray lib for nekowg"
 license = "MPL-2.0"
 
 [workspace.dependencies]
-nekowg = { git = "https://github.com/NeoNekos/NekoWG.git", branch = "master", version = "0.2.2"}
-nekowg_platform = { git = "https://github.com/NeoNekos/NekoWG.git", branch = "master", version = "0.1.0"}
+nekowg = { git = "https://github.com/NeoNekos/NekoWG.git", branch = "master", version = "0.2"}
 thiserror = "2.0"
 image = { version = "0.25.9", default-features = false, features = ["png", "jpeg", "ico", "webp"]}
 log = "0.4.29"
